@@ -6,12 +6,18 @@ import { useEffect, useState } from "react";
 const AvailableMeals = () => {
   const [meals, setMeals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [httpError, setHttpError] = useState();
 
   useEffect(() => {
     const fetchMeals = async () => {
       const response = await fetch(
         "https://react-practice-9b1d3-default-rtdb.firebaseio.com/meals.json"
       );
+
+      if (!response.ok) {
+        throw new Error("Something went wrong!");
+      }
+
       const responseData = await response.json();
       const loadedMeals = [];
 
@@ -28,8 +34,27 @@ const AvailableMeals = () => {
       setIsLoading(false);
     };
 
-    fetchMeals();
+    fetchMeals().catch((error) => {
+      setIsLoading(false);
+      setHttpError(error.message);
+    });
+
+    // try {
+    //   fetchMeals();
+    // } catch (error) {
+    //   setIsLoading(false);
+    //   setHttpError(error.message);
+    // }
   }, []);
+
+  if (httpError) {
+    return (
+      <section className={classes.HttpError}>
+        <p>{httpError}</p>
+        <p>Please contact 010-2359-2779 or leekisung0212@gmail.com</p>
+      </section>
+    );
+  }
 
   if (isLoading) {
     return (
